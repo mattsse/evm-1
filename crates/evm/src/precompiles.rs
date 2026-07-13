@@ -551,7 +551,7 @@ impl<BlockEnv, TxEnv, CfgEnv, DB, Chain>
     PrecompileProvider<Context<BlockEnv, TxEnv, CfgEnv, DB, Journal<DB>, Chain>> for PrecompilesMap
 where
     BlockEnv: BlockEnvironment,
-    TxEnv: revm::context::Transaction,
+    TxEnv: revm::context::Transaction + 'static,
     CfgEnv: revm::context::Cfg,
     DB: Database,
 {
@@ -1072,11 +1072,12 @@ mod tests {
     }
 
     #[test]
-    fn test_evm_internals_downcasts_block_env() {
+    fn test_evm_internals_downcasts_environments() {
         let mut ctx = EthEvmContext::new(EmptyDB::default(), Default::default());
         let internals = EvmInternals::from_context(&mut ctx);
 
         assert!(internals.block_env_downcast_ref::<BlockEnv>().is_some());
+        assert!(internals.tx_env_downcast_ref::<revm::context::TxEnv>().is_some());
     }
 
     #[test]
